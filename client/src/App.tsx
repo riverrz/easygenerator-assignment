@@ -1,11 +1,15 @@
-import { Button } from "@/components/ui/button";
+import { Routes, Route } from "react-router-dom";
+import { HomePage } from "@/modules/home/home.page";
+import { LoginPage } from "@/modules/auth/login.page";
+import { SignupPage } from "@/modules/auth/signup/signup.page";
 
 function App() {
   return (
-    <main className="m-8">
-      <h1 className="font-3xl text-red-600 mb-4">Hello world</h1>
-      <Button variant="default">Destructive</Button>
-    </main>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+    </Routes>
   );
 }
 
