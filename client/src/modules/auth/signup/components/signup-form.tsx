@@ -14,22 +14,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  containsLetter,
+  containsNumber,
+  containsSpecialCharacter,
+} from "@/utils/utils";
 
 interface Props {
   onSuccess: (payload: SignupResponseDto) => void;
 }
-
-const formSchema = z.object({
-  email: z.string().email({
-    message: "Email must be valid",
-  }),
-  password: z.string().min(8, {
-    message: "Password must be valid",
-  }),
-  name: z.string().min(1, { message: "Name is required" }),
-});
-
-export type RegisterFormValues = z.infer<typeof formSchema>;
 
 export const SignupForm = ({ onSuccess }: Props) => {
   const { toast } = useToast();
@@ -72,7 +65,7 @@ export const SignupForm = ({ onSuccess }: Props) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)}>
-        <div className="grid gap-3">
+        <div className="grid gap-4">
           <FormField
             control={form.control}
             name="name"
@@ -130,3 +123,33 @@ export const SignupForm = ({ onSuccess }: Props) => {
     </Form>
   );
 };
+
+const formSchema = z
+  .object({
+    email: z.string().email({
+      message: "Email must be valid",
+    }),
+    password: z.string().min(8, {
+      message: "Password must be atleast 8 characters",
+    }),
+    name: z.string().min(1, { message: "Name is required" }),
+  })
+  .superRefine(({ password }, ctx) => {
+    let errorMessage = "";
+    if (!containsLetter(password)) {
+      errorMessage = "Password must have 1 letter";
+    } else if (!containsNumber(password)) {
+      errorMessage = "Password must have 1 number";
+    } else if (!containsSpecialCharacter(password)) {
+      errorMessage = "Password must have 1 special character";
+    }
+    if (errorMessage) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["password"],
+        message: errorMessage,
+      });
+    }
+  });
+
+export type RegisterFormValues = z.infer<typeof formSchema>;
