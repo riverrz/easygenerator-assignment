@@ -40,8 +40,8 @@ export const fetcher = async <TData>(
     await logout();
   }
 
-  return Promise.reject({
+  return {
     success: false,
     error: data as ErrorResponse,
-  });
+  };
 };
