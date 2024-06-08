@@ -1,36 +1,11 @@
-import * as bcrypt from 'bcrypt';
-
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { LoginDto } from '../dtos/login.dto';
-import { SignupDto } from '../dtos/signup.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  @Post('signup')
-  async signup(
-    @Res({ passthrough: true }) res: Response,
-    @Body() body: SignupDto,
-  ) {
-    const { email, name, password } = body;
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Generate the access tokens
-    const { accessToken, refreshToken } = await this.createAuthTokens('123');
-
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-    });
-
-    return { accessToken };
-  }
 
   @Post('login')
   async login(
@@ -39,10 +14,11 @@ export class AuthController {
   ) {
     const { email, password } = body;
 
-    // Fetch the user with the email and then compare the hashed password
+    const user = await this.authService.login(email, password);
 
     // Generate the access tokens
-    const { accessToken, refreshToken } = await this.createAuthTokens('123');
+    const { accessToken, refreshToken } =
+      await this.authService.createAuthTokens(user._id.toString());
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -50,16 +26,17 @@ export class AuthController {
       sameSite: 'strict',
     });
 
-    return { accessToken };
+    return { accessToken, user };
   }
 
-  private async createAuthTokens(userId: string) {
-    const accessToken = await this.authService.createAccessToken(userId);
-    const refreshToken = await this.authService.createRefreshToken(userId);
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return { message: 'Logged out successfully' };
   }
 }
