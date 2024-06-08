@@ -3,6 +3,11 @@ export interface LoginDto {
   password: string;
 }
 
+export interface LoginResponseDto {
+  success: true;
+}
+
+
 export interface SignupRequestDto {
   email: string;
   name: string;

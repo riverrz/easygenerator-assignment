@@ -15,32 +15,28 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 
-import { validatePassword } from "../../helpers";
-
 interface Props {
   onSuccess: (payload: SignupResponseDto) => void;
 }
 
-export const SignupForm = ({ onSuccess }: Props) => {
+export const LoginForm = ({ onSuccess }: Props) => {
   const { toast } = useToast();
-
-  const form = useForm<RegisterFormValues>({
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
-      name: "",
     },
   });
 
   const { isSubmitting } = form.formState;
 
-  const onFormSubmit: SubmitHandler<RegisterFormValues> = async (values) => {
+  const onFormSubmit: SubmitHandler<LoginFormValues> = async (values) => {
     try {
-      const response = await authService.signup(values);
+      const response = await authService.login(values);
       if (response.success) {
         toast({
-          description: "Successfully signed up!",
+          description: "Successfully logged in!",
         });
         return onSuccess(response.data);
       } else {
@@ -63,19 +59,6 @@ export const SignupForm = ({ onSuccess }: Props) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)}>
         <div className="grid gap-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input type="text" placeholder="Enter your name" {...field} />
-                </FormControl>
-                <FormMessage className="text-xs" />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="email"
@@ -121,23 +104,10 @@ export const SignupForm = ({ onSuccess }: Props) => {
   );
 };
 
-const formSchema = z
-  .object({
-    email: z.string().email({
-      message: "Email must be valid",
-    }),
-    name: z.string().min(1, { message: "Name is required" }),
-    password: z.string(),
-  })
-  .superRefine(({ password }, ctx) => {
-    const validationResponse = validatePassword(password);
-    if (!validationResponse.isValid) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["password"],
-        message: validationResponse.errorMessage,
-      });
-    }
-  });
-
-export type RegisterFormValues = z.infer<typeof formSchema>;
+const formSchema = z.object({
+  email: z.string().email({
+    message: "Email must be valid",
+  }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
+export type LoginFormValues = z.infer<typeof formSchema>;
