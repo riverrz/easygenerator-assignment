@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -9,6 +10,12 @@ import {
 import { SignupForm } from "./components/signup-form";
 
 export function SignupPage() {
+  const navigate = useNavigate();
+
+  const onSuccessfulSignup = () => {
+    navigate("/");
+  };
+
   return (
     <main className="flex items-center justify-center min-h-screen">
       <Card className="max-w-[350px] w-[90vw]">
@@ -19,7 +26,7 @@ export function SignupPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SignupForm />
+          <SignupForm onSuccess={onSuccessfulSignup} />
         </CardContent>
       </Card>
     </main>

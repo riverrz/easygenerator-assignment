@@ -1,31 +1,115 @@
+import * as z from "zod";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { SignupResponseDto } from "@/modules/auth/services/auth.types";
+import * as authService from "@/modules/auth/services/auth.service";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/components/ui/use-toast";
 
-export const SignupForm = () => {
+interface Props {
+  onSuccess: (payload: SignupResponseDto) => void;
+}
+
+const formSchema = z.object({
+  email: z.string().email({
+    message: "Email must be valid",
+  }),
+  password: z.string().min(8, {
+    message: "Password must be valid",
+  }),
+  name: z.string({ required_error: "Name is required" }),
+});
+
+export type RegisterFormValues = z.infer<typeof formSchema>;
+
+export const SignupForm = ({ onSuccess }: Props) => {
+  const { toast } = useToast();
+
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      name: "",
+    },
+  });
+
+  const { isSubmitting } = form.formState;
+
+  const onFormSubmit: SubmitHandler<RegisterFormValues> = async (values) => {
+    try {
+      const response = await authService.signup(values);
+      if (response.success) {
+        toast({
+          description: "Successfully signed up!",
+        });
+        return onSuccess(response.data);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: response.error.message,
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: (error as Error).message,
+      });
+    }
+  };
+
   return (
-    <form className="w-full">
-      <div className="grid w-full items-center gap-4">
-        <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" placeholder="Enter your name" />
-        </div>
-        <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" placeholder="Enter your email" type="email" />
-        </div>
-        <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            placeholder="Enter your password"
-            type="password"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onFormSubmit)}>
+        <div className="grid gap-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input type="password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
-      </div>
-      <div className="mt-6 flex justify-center">
-        <Button type="submit">Submit</Button>
-      </div>
-    </form>
+        <div className="mt-6 flex justify-center">
+          <Button className="w-full" isLoading={isSubmitting}>
+            Submit
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };

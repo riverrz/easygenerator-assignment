@@ -1,5 +1,5 @@
 import { fetcher } from "@/lib/http";
-import { LoginDto, SignupDto } from "./auth.types";
+import { LoginDto, SignupRequestDto, SignupResponseDto } from "./auth.types";
 
 export const logout = () => {
   window.location.href = "/login";
@@ -17,14 +17,9 @@ export const login = async (payload: LoginDto) => {
   }
 };
 
-export const signup = async (payload: SignupDto) => {
-  const response = await fetcher("/signup", {
+export const signup = (payload: SignupRequestDto) => {
+  return fetcher<SignupResponseDto>("/signup", {
     method: "POST",
     body: payload,
   });
-  if (response.success) {
-    return response.data;
-  } else {
-    return response.error;
-  }
 };
