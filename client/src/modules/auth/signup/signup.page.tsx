@@ -6,14 +6,37 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import * as authService from "@/modules/auth/services/auth.service";
 import { SignupForm } from "./components/signup-form";
+import { SignupRequestDto } from "../services/auth.types";
+import { useToast } from "@/components/ui/use-toast";
 
 export function SignupPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const onSuccessfulSignup = () => {
-    navigate("/");
+  const onSignupSubmit = async (payload: SignupRequestDto) => {
+    try {
+      const response = await authService.signup(payload);
+      if (response.success) {
+        toast({
+          description: "Successfully signed up!",
+        });
+        return navigate("/");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: response.error.message,
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: (error as Error).message,
+      });
+    }
   };
 
   return (
@@ -26,7 +49,7 @@ export function SignupPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SignupForm onSuccess={onSuccessfulSignup} />
+          <SignupForm onSubmit={onSignupSubmit} />
         </CardContent>
       </Card>
     </main>

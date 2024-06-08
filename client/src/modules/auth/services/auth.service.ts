@@ -1,6 +1,6 @@
 import { fetcher } from "@/lib/http";
 import {
-  LoginDto,
+  LoginRequestDto,
   LoginResponseDto,
   SignupRequestDto,
   SignupResponseDto,
@@ -10,7 +10,7 @@ export const logout = () => {
   window.location.href = "/login";
 };
 
-export const login = (payload: LoginDto) => {
+export const login = (payload: LoginRequestDto) => {
   return fetcher<LoginResponseDto>("/login", {
     method: "POST",
     body: payload,

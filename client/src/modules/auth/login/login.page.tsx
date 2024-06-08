@@ -6,14 +6,37 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import * as authService from "@/modules/auth/services/auth.service";
 import { LoginForm } from "./components/login-form";
+import { LoginRequestDto } from "../services/auth.types";
+import { useToast } from "@/components/ui/use-toast";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const onSuccessfulLogin = () => {
-    navigate("/");
+  const onLoginSubmit = async (payload: LoginRequestDto) => {
+    try {
+      const response = await authService.login(payload);
+      if (response.success) {
+        toast({
+          description: "Successfully logged in!",
+        });
+        return navigate("/");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: response.error.message,
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: (error as Error).message,
+      });
+    }
   };
 
   return (
@@ -26,7 +49,7 @@ export function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <LoginForm onSuccess={onSuccessfulLogin} />
+          <LoginForm onSubmit={onLoginSubmit} />
         </CardContent>
       </Card>
     </main>

@@ -3,8 +3,8 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SignupResponseDto } from "@/modules/auth/services/auth.types";
-import * as authService from "@/modules/auth/services/auth.service";
+import { SignupRequestDto } from "@/modules/auth/services/auth.types";
+
 import {
   Form,
   FormControl,
@@ -13,19 +13,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useToast } from "@/components/ui/use-toast";
 
 import { validatePassword } from "../../helpers";
 import { Seperator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
 
 interface Props {
-  onSuccess: (payload: SignupResponseDto) => void;
+  onSubmit: (payload: SignupRequestDto) => void;
 }
 
-export const SignupForm = ({ onSuccess }: Props) => {
-  const { toast } = useToast();
-
+export const SignupForm = ({ onSubmit }: Props) => {
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,27 +35,7 @@ export const SignupForm = ({ onSuccess }: Props) => {
   const { isSubmitting } = form.formState;
 
   const onFormSubmit: SubmitHandler<RegisterFormValues> = async (values) => {
-    try {
-      const response = await authService.signup(values);
-      if (response.success) {
-        toast({
-          description: "Successfully signed up!",
-        });
-        return onSuccess(response.data);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: response.error.message,
-        });
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: (error as Error).message,
-      });
-    }
+    await onSubmit(values);
   };
 
   return (
@@ -128,7 +105,10 @@ export const SignupForm = ({ onSuccess }: Props) => {
       <div className="mt-4">
         <Seperator content="OR" />
         <p className="text-xs py-2 text-center">
-          Already signed up? Click here to <Link to="/login" className="underline">login</Link>
+          Already signed up? Click here to{" "}
+          <Link to="/login" className="underline">
+            login
+          </Link>
         </p>
       </div>
     </div>
