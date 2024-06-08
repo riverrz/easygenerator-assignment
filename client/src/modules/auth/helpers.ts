@@ -2,7 +2,7 @@ import {
   containsLetter,
   containsNumber,
   containsSpecialCharacter,
-} from "@/utils/utils";
+} from "@/lib/utils";
 
 export const validatePassword = (password: string) => {
   let errorMessage = "";
