@@ -26,7 +26,7 @@ const formSchema = z.object({
   password: z.string().min(8, {
     message: "Password must be valid",
   }),
-  name: z.string({ required_error: "Name is required" }),
+  name: z.string().min(1, { message: "Name is required" }),
 });
 
 export type RegisterFormValues = z.infer<typeof formSchema>;
@@ -72,7 +72,20 @@ export const SignupForm = ({ onSuccess }: Props) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)}>
-        <div className="grid gap-4">
+        <div className="grid gap-3">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Enter your name" {...field} />
+                </FormControl>
+                <FormMessage className="text-xs" />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="email"
@@ -86,7 +99,7 @@ export const SignupForm = ({ onSuccess }: Props) => {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -97,9 +110,13 @@ export const SignupForm = ({ onSuccess }: Props) => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <Input
+                    type="password"
+                    placeholder="Enter your password"
+                    {...field}
+                  />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
