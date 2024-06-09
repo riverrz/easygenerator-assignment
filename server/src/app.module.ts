@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -7,6 +7,7 @@ import { ACCESS_TOKEN_EXPIRY } from './auth/auth.constants';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ResponseInterceptor } from './interceptors';
+import { WinstonLogger } from './logger/winston-logger.service';
 
 @Module({
   imports: [
@@ -38,6 +39,10 @@ import { ResponseInterceptor } from './interceptors';
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
+    },
+    {
+      provide: Logger,
+      useClass: WinstonLogger,
     },
   ],
 })

@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +13,8 @@ import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  private readonly logger = new Logger(AuthGuard.name);
+
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
@@ -36,13 +39,14 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    const token = this.extractTokenFromHeader(request);
+    const accessToken = this.extractTokenFromHeader(request);
     const refreshToken = request.cookies[REFRESH_TOKEN_COOKIE_NAME];
 
-    if (!token && !refreshToken) {
+    if (!accessToken && !refreshToken) {
+      this.logger.error('Access token and refresh token is missing');
       throw new UnauthorizedException();
     }
-    const accessTokenVerificationResponse = await this.verifyToken(token);
+    const accessTokenVerificationResponse = await this.verifyToken(accessToken);
 
     if (accessTokenVerificationResponse.verified) {
       // Attach the decoded token and attach to request for further use
@@ -62,6 +66,7 @@ export class AuthGuard implements CanActivate {
     request['sync_token'] = await this.authService.createAccessToken(
       refreshTokenVerificationResponse.payload.id,
     );
+
     request.user_id = refreshTokenVerificationResponse.payload.id;
 
     return true;
