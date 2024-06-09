@@ -16,7 +16,6 @@ export class ResponseInterceptor implements NestInterceptor {
         const request = context.switchToHttp().getRequest();
 
         return {
-          success: true,
           data,
           sync_token: request.sync_token,
         };
