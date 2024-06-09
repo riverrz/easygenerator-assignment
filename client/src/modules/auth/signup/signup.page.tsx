@@ -20,9 +20,10 @@ export function SignupPage() {
       const response = await authService.signup(payload);
       if (response.success) {
         toast({
-          description: "Successfully signed up!",
+          description:
+            "Successfully signed up! Please login with your new credentials",
         });
-        return navigate("/");
+        return navigate("/login");
       } else {
         toast({
           variant: "destructive",

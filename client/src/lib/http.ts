@@ -19,7 +19,7 @@ type FetcherReturnType<TData> =
   | { success: false; error: ErrorResponse };
 
 interface FetcherRequestInit extends Omit<RequestInit, "body"> {
-  body: unknown;
+  body?: unknown;
 }
 
 export const fetcher = async <TData>(
@@ -32,7 +32,15 @@ export const fetcher = async <TData>(
   const requestInit: RequestInit = {
     ...init,
     body: init.body ? JSON.stringify(init.body) : undefined,
+    credentials: "include",
   };
+
+  if (init.body) {
+    requestInit.headers = {
+      ...requestInit.headers,
+      "Content-Type": "application/json",
+    };
+  }
 
   const accessToken = store.get(accessTokenAtom);
 
@@ -43,7 +51,6 @@ export const fetcher = async <TData>(
       Authorization: `Bearer ${accessToken}`,
     };
   }
-
   const response = await fetch(`${envs.apiUrl}${url}`, requestInit);
 
   const responsePayload = await response.json();
@@ -67,9 +74,13 @@ export const fetcher = async <TData>(
     // Unauthenticated, so logout
     await logout();
   }
-
+  const errorResponseData = responsePayload.data.error as ErrorResponse;
+  const errorMessage = Array.isArray(errorResponseData.message)
+    ? errorResponseData.message.join(",")
+    : errorResponseData.message;
+  errorResponseData.message = errorMessage;
   return {
     success: false,
-    error: responsePayload.data as ErrorResponse,
+    error: errorResponseData,
   };
 };

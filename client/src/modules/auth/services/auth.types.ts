@@ -4,7 +4,7 @@ export interface LoginRequestDto {
 }
 
 export interface LoginResponseDto {
-  success: true;
+  accessToken: string
 }
 
 

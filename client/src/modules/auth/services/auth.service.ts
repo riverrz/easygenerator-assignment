@@ -5,21 +5,40 @@ import {
   SignupRequestDto,
   SignupResponseDto,
 } from "./auth.types";
+import { store } from "@/store";
+import { accessTokenAtom } from "../auth.state";
 
-export const logout = () => {
+export const logout = async () => {
+  await fetcher("/auth/logout", {
+    method: "POST",
+    body: {},
+  });
   window.location.href = "/login";
 };
 
-export const login = (payload: LoginRequestDto) => {
-  return fetcher<LoginResponseDto>("/login", {
-    method: "POST",
-    body: payload,
-  });
+export const login = async (payload: LoginRequestDto) => {
+  const response = await fetcher<LoginResponseDto>(
+    "/auth/login",
+    {
+      method: "POST",
+      body: payload,
+    },
+    { requiresAuthentication: false }
+  );
+  if (response.success) {
+    // Set access token on success
+    store.set(accessTokenAtom, response.data.accessToken);
+  }
+  return response;
 };
 
 export const signup = (payload: SignupRequestDto) => {
-  return fetcher<SignupResponseDto>("/signup", {
-    method: "POST",
-    body: payload,
-  });
+  return fetcher<SignupResponseDto>(
+    "/user/signup",
+    {
+      method: "POST",
+      body: payload,
+    },
+    { requiresAuthentication: false }
+  );
 };
