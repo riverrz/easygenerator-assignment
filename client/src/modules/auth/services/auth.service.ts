@@ -32,8 +32,8 @@ export const login = async (payload: LoginRequestDto) => {
   return response;
 };
 
-export const signup = (payload: SignupRequestDto) => {
-  return fetcher<SignupResponseDto>(
+export const signup = async (payload: SignupRequestDto) => {
+  const response = await fetcher<SignupResponseDto>(
     "/user/signup",
     {
       method: "POST",
@@ -41,4 +41,9 @@ export const signup = (payload: SignupRequestDto) => {
     },
     { requiresAuthentication: false }
   );
+  if (response.success) {
+    // Set access token on success
+    store.set(accessTokenAtom, response.data.accessToken);
+  }
+  return response;
 };

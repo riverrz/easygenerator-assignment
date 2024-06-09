@@ -4,9 +4,8 @@ export interface LoginRequestDto {
 }
 
 export interface LoginResponseDto {
-  accessToken: string
+  accessToken: string;
 }
-
 
 export interface SignupRequestDto {
   email: string;
@@ -14,5 +13,5 @@ export interface SignupRequestDto {
   password: string;
 }
 export interface SignupResponseDto {
-  success: true;
+  accessToken: string;
 }
