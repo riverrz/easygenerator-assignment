@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsStrongPassword, Matches } from 'class-validator';
+import { IsEmail, IsString, IsStrongPassword } from 'class-validator';
 
 export class SignupDto {
   @IsString()
@@ -12,14 +12,13 @@ export class SignupDto {
       minLength: 8,
       minSymbols: 1,
       minNumbers: 1,
+      minLowercase: 1,
+      minUppercase: 1,
     },
     {
       message:
-        'Password must be 8 characters long with atleast 1 letter, number and special character each',
+        'Password must be 8 characters long with atleast 1 uppercase and lowercase letters, number and special character each',
     },
   )
-  @Matches(/[a-zA-Z]/g, {
-    message: 'Password must contain atleast 1 letter',
-  })
   password: string;
 }

@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const containsLetter = (chars: string) => /[a-zA-Z]/g.test(chars);
+export const containsLowercaseLetter = (chars: string) => /[a-z]/g.test(chars);
+export const containsUppercaseLetter = (chars: string) => /[A-Z]/g.test(chars);
 
 export const containsNumber = (chars: string) => /\d/g.test(chars);
 

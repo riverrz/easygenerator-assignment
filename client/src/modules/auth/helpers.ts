@@ -1,5 +1,6 @@
 import {
-  containsLetter,
+  containsLowercaseLetter,
+  containsUppercaseLetter,
   containsNumber,
   containsSpecialCharacter,
 } from "@/lib/utils";
@@ -8,8 +9,10 @@ export const validatePassword = (password: string) => {
   let errorMessage = "";
   if (password.length < 8) {
     errorMessage = "Password must be 8 characters long";
-  } else if (!containsLetter(password)) {
-    errorMessage = "Password must have 1 letter";
+  } else if (!containsLowercaseLetter(password)) {
+    errorMessage = "Password must have 1 lower case letter";
+  } else if (!containsUppercaseLetter(password)) {
+    errorMessage = "Password must have 1 upper case letter";
   } else if (!containsNumber(password)) {
     errorMessage = "Password must have 1 number";
   } else if (!containsSpecialCharacter(password)) {
