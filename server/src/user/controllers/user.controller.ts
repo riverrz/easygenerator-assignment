@@ -6,10 +6,12 @@ import {
   Post,
   Res,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { Response } from 'express';
 import { SignupDto } from '../dtos/signup.dto';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -27,6 +29,7 @@ export class UserController {
     return true;
   }
 
+  @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@Request() req) {
     const user = await this.userService.findOne({ _id: req.user.id });

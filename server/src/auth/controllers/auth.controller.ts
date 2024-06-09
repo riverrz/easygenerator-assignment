@@ -2,6 +2,7 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { Response } from 'express';
 import { LoginDto } from '../dtos/login.dto';
+import { REFRESH_TOKEN_COOKIE_NAME } from '../auth.constants';
 
 @Controller('auth')
 export class AuthController {
@@ -20,7 +21,7 @@ export class AuthController {
     const { accessToken, refreshToken } =
       await this.authService.createAuthTokens(user._id.toString());
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
@@ -31,7 +32,7 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('refreshToken', {
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',

@@ -28,10 +28,10 @@ export class UserService {
     });
   }
 
-  async findOne(filterExpression: FilterQuery<User>) {
+  findOne(filterExpression: FilterQuery<User>) {
     return this.userModel.findOne(filterExpression);
   }
-  async exists(filterExpression: FilterQuery<User>) {
+  exists(filterExpression: FilterQuery<User>) {
     return this.userModel.exists(filterExpression);
   }
 }

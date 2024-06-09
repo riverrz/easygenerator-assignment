@@ -14,20 +14,25 @@ export class AuthService {
   ) {}
 
   async login(email: string, password: string) {
-    const user = await this.userService.findOne({ email });
+    const user = await this.userService
+      .findOne({ email })
+      .select('+password')
+      .lean();
 
-    const isPasswordMatching = user
-      ? await bcrypt.compare(password, user.password)
-      : false;
+    if (!user) {
+      throw new NotFoundException('User with email/password was not found');
+    }
+    const { password: savedPassword, ...userDetails } = user;
 
-    if (!user || !isPasswordMatching) {
+    const isPasswordMatching = await bcrypt.compare(password, savedPassword);
+    if (!isPasswordMatching) {
       throw new NotFoundException('User with email/password was not found');
     }
 
-    return user;
+    return userDetails;
   }
 
-  private createAccessToken(userId: string) {
+  createAccessToken(userId: string) {
     return this.jwtService.signAsync(
       { id: userId },
       { expiresIn: ACCESS_TOKEN_EXPIRY },
@@ -37,7 +42,7 @@ export class AuthService {
   private createRefreshToken(userId: string) {
     const tokenId = uuid();
     return this.jwtService.signAsync(
-      { id: userId, tokenId: tokenId },
+      { id: userId, tokenId },
       { expiresIn: '7d' },
     );
   }
