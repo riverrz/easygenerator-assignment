@@ -10,14 +10,10 @@ import {
 import { UserService } from '../services/user.service';
 import { Response } from 'express';
 import { SignupDto } from '../dtos/signup.dto';
-import { AuthService } from 'src/auth/services/auth.service';
 
 @Controller('user')
 export class UserController {
-  constructor(
-    private userService: UserService,
-    private authService: AuthService,
-  ) {}
+  constructor(private userService: UserService) {}
 
   @Post('signup')
   async signUp(
@@ -26,19 +22,9 @@ export class UserController {
   ) {
     const { email, name, password } = body;
 
-    const user = await this.userService.create({ name, email, password });
+    await this.userService.create({ name, email, password });
 
-    // Generate the access tokens
-    const { accessToken, refreshToken } =
-      await this.authService.createAuthTokens('123');
-
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-    });
-
-    return { accessToken, user };
+    return true;
   }
 
   @Get('profile')

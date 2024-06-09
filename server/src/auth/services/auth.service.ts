@@ -16,9 +16,9 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await this.userService.findOne({ email });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const isPasswordMatching = user?.password === hashedPassword;
+    const isPasswordMatching = user
+      ? await bcrypt.compare(password, user.password)
+      : false;
 
     if (!user || !isPasswordMatching) {
       throw new NotFoundException('User with email/password was not found');
