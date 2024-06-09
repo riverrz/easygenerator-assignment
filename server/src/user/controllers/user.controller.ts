@@ -12,10 +12,17 @@ import { UserService } from '../services/user.service';
 import { Response } from 'express';
 import { SignupDto } from '../dtos/signup.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { AuthService } from 'src/auth/services/auth.service';
+import { ConfigService } from '@nestjs/config';
+import { REFRESH_TOKEN_COOKIE_NAME } from 'src/auth/auth.constants';
 
 @Controller('user')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+    private configService: ConfigService,
+  ) {}
 
   @Post('signup')
   async signUp(
@@ -24,9 +31,20 @@ export class UserController {
   ) {
     const { email, name, password } = body;
 
-    await this.userService.create({ name, email, password });
+    const user = await this.userService.create({ name, email, password });
 
-    return true;
+    // Generate the access tokens
+    const { accessToken, refreshToken } =
+      await this.authService.createAuthTokens(user._id.toString());
+
+    const isProductionEnv = this.configService.get('APP_ENV') === 'production';
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
+      httpOnly: true,
+      secure: isProductionEnv,
+      sameSite: isProductionEnv ? 'strict' : 'lax',
+    });
+
+    return { accessToken, user };
   }
 
   @UseGuards(AuthGuard)
