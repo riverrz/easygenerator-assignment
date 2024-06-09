@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { ACCESS_TOKEN_EXPIRY } from './auth/auth.constants';
 import { MongooseModule } from '@nestjs/mongoose';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ACCESS_TOKEN_EXPIRY } from './auth/auth.constants';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { ResponseInterceptor } from './interceptors';
 
 @Module({
   imports: [
@@ -32,6 +34,11 @@ import { UserModule } from './user/user.module';
     UserModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+  ],
 })
 export class AppModule {}

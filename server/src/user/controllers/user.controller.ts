@@ -32,7 +32,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@Request() req) {
-    const user = await this.userService.findOne({ _id: req.user.id });
+    const user = await this.userService.findOne({ _id: req.user_id });
 
     if (!user) {
       throw new NotFoundException('User with provided id was not found');

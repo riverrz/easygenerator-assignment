@@ -46,12 +46,14 @@ export class AuthGuard implements CanActivate {
 
     if (accessTokenVerificationResponse.verified) {
       // Attach the decoded token and attach to request for further use
-      request['user'] = accessTokenVerificationResponse.payload;
+      request.user_id = accessTokenVerificationResponse.payload.id;
       return true;
     }
 
     // Verify if refresh token is valid
-    const refreshTokenVerificationResponse = await this.verifyToken(token);
+    const refreshTokenVerificationResponse =
+      await this.verifyToken(refreshToken);
+
     if (!refreshTokenVerificationResponse.verified) {
       throw new UnauthorizedException();
     }
@@ -60,6 +62,8 @@ export class AuthGuard implements CanActivate {
     request['sync_token'] = await this.authService.createAccessToken(
       refreshTokenVerificationResponse.payload.id,
     );
+    request.user_id = refreshTokenVerificationResponse.payload.id;
+
     return true;
   }
 
