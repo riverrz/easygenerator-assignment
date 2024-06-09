@@ -1,9 +1,7 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail } from 'class-validator';
+import { PasswordDto } from 'src/dtos/password.dto';
 
-export class LoginDto {
+export class LoginDto extends PasswordDto {
   @IsEmail()
   email: string;
-
-  @IsString()
-  password: string;
 }
